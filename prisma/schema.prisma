@@ -1,0 +1,599 @@
+// prisma/schema.prisma
+// LINKER — Full Database Schema
+// All tables use the linker_ prefix as required.
+// Database: Supabase (PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────
+// AUTH TABLES
+// ─────────────────────────────────────────
+
+model LinkerUser {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts             LinkerAccount[]
+  sessions             LinkerSession[]
+  profile              LinkerProfile?
+  identityFields       LinkerIdentityField[]
+  knowledgeEntries     LinkerKnowledgeEntry[]
+  projects             LinkerProject[]
+  journalEntries       LinkerJournalEntry[]
+  strategy             LinkerStrategy?
+  contentPillars       LinkerContentPillar[]
+  ideas                LinkerIdea[]
+  researchRecords      LinkerResearchRecord[]
+  drafts               LinkerDraft[]
+  linkedinConnection   LinkerLinkedinConnection?
+  analyticsRecords     LinkerAnalyticsRecord[]
+  aiRuns               LinkerAiRun[]
+
+  @@map("linker_users")
+}
+
+model LinkerAccount {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user LinkerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("linker_accounts")
+}
+
+model LinkerSession {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user LinkerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("linker_sessions")
+}
+
+model LinkerVerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("linker_verification_tokens")
+}
+
+// ─────────────────────────────────────────
+// IDENTITY
+// ─────────────────────────────────────────
+
+model LinkerProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  fullName           String?
+  headline           String?
+  currentRole        String?
+  industry           String?
+  location           String?
+  bio                String?
+  website            String?
+  targetAudience     String?
+  professionalGoals  String?
+  positioning        String?
+  values             String?
+  writingStyle       String?
+  tone               String?
+  preferredTopics    String[]
+  topicsToAvoid      String[]
+  technicalDepth     String?  @default("intermediate") // beginner | intermediate | advanced | expert
+  useEmoji           Boolean  @default(false)
+  useHashtags        Boolean  @default(true)
+  hashtagCount       Int      @default(3)
+  postLength         String?  @default("medium") // short | medium | long
+  formality          String?  @default("professional") // casual | professional | formal
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user LinkerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("linker_profiles")
+}
+
+enum EvidenceState {
+  CONFIRMED
+  USER_PROVIDED
+  AI_SUGGESTION
+  UNVERIFIED
+  OUTDATED
+  NEEDS_REVIEW
+  REJECTED
+}
+
+model LinkerIdentityField {
+  id            String        @id @default(cuid())
+  userId        String
+  fieldName     String
+  fieldValue    String
+  evidenceState EvidenceState @default(USER_PROVIDED)
+  source        String?
+  notes         String?
+  reviewedAt    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user LinkerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("linker_identity_fields")
+}
+
+// ─────────────────────────────────────────
+// KNOWLEDGE BASE
+// ─────────────────────────────────────────
+
+model LinkerKnowledgeEntry {
+  id             String        @id @default(cuid())
+  userId         String
+  title          String
+  content        String
+  category       String?       // skill | concept | lesson | framework | observation | resource | workflow | mistake | improvement | idea
+  tags           String[]
+  source         String?
+  sourceUrl      String?
+  evidenceState  EvidenceState @default(USER_PROVIDED)
+  relevanceScore Int?          // 1-5, user-set
+  reviewDate     DateTime?
+  relatedPillar  String?
+  projectId      String?
+  isArchived     Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user    LinkerUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project LinkerProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@map("linker_knowledge_entries")
+}
+
+// ─────────────────────────────────────────
+// PROJECTS
+// ─────────────────────────────────────────
+
+enum ProjectStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  PAUSED
+  ABANDONED
+}
+
+enum OutcomeStatus {
+  PLANNED
+  CLAIMED
+  VERIFIED
+  UNVERIFIED
+}
+
+model LinkerProject {
+  id               String        @id @default(cuid())
+  userId           String
+  name             String
+  description      String?
+  problemAddressed String?
+  targetUsers      String?
+  techStack        String[]
+  status           ProjectStatus @default(PLANNED)
+  startDate        DateTime?
+  endDate          DateTime?
+  links            String[]
+  outcomes         String?
+  outcomeStatus    OutcomeStatus @default(UNVERIFIED)
+  isArchived       Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  user             LinkerUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestones       LinkerProjectMilestone[]
+  journalEntries   LinkerJournalEntry[]
+  knowledgeEntries LinkerKnowledgeEntry[]
+  ideas            LinkerIdea[]
+  drafts           LinkerDraft[]
+
+  @@map("linker_projects")
+}
+
+model LinkerProjectMilestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  project LinkerProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("linker_project_milestones")
+}
+
+// ─────────────────────────────────────────
+// JOURNAL
+// ─────────────────────────────────────────
+
+enum JournalPrivacy {
+  PRIVATE
+  INTERNAL
+  CONTENT_ELIGIBLE
+}
+
+model LinkerJournalEntry {
+  id                    String         @id @default(cuid())
+  userId                String
+  projectId             String?
+  title                 String
+  content               String
+  tags                  String[]
+  privacy               JournalPrivacy @default(PRIVATE)
+  hasContentOpportunity Boolean        @default(false)
+  contentNotes          String?
+  evidence              String?
+  entryDate             DateTime       @default(now())
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  user    LinkerUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project LinkerProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  ideas   LinkerIdea[]
+
+  @@map("linker_journal_entries")
+}
+
+// ─────────────────────────────────────────
+// STRATEGY
+// ─────────────────────────────────────────
+
+model LinkerStrategy {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  positioning      String?
+  goals            String?
+  targetAudience   String?
+  postingFrequency Int?     // posts per week
+  preferredDays    String[] // MON, TUE, WED, THU, FRI, SAT, SUN
+  preferredTimes   String[] // HH:MM in 24h format
+  timezone         String?  @default("UTC")
+  preferredFormats String[] // text | image | video | document | poll
+  preferredLength  String?  @default("medium") // short | medium | long
+  tone             String?
+  callToAction     String?
+  researchRequired Boolean  @default(false)
+  topicsToAvoid    String[]
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user    LinkerUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pillars LinkerContentPillar[]
+
+  @@map("linker_strategies")
+}
+
+model LinkerContentPillar {
+  id          String   @id @default(cuid())
+  userId      String
+  strategyId  String?
+  name        String
+  description String?
+  color       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     LinkerUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategy LinkerStrategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)
+  ideas    LinkerIdea[]
+  drafts   LinkerDraft[]
+
+  @@map("linker_content_pillars")
+}
+
+// ─────────────────────────────────────────
+// IDEAS
+// ─────────────────────────────────────────
+
+enum IdeaStatus {
+  SAVED
+  IN_REVIEW
+  APPROVED
+  CONVERTED
+  ARCHIVED
+  REJECTED
+}
+
+enum IdeaSource {
+  MANUAL
+  JOURNAL
+  KNOWLEDGE
+  PROJECT
+  RESEARCH
+  CONTENT_GAP
+  OBSERVATION
+}
+
+model LinkerIdea {
+  id             String     @id @default(cuid())
+  userId         String
+  pillarId       String?
+  projectId      String?
+  journalEntryId String?
+  title          String
+  description    String?
+  source         IdeaSource @default(MANUAL)
+  targetAudience String?
+  purpose        String?    // teaching | documenting | problem-solution | technical-decision | observation | framework | research | progress | question | lesson | tradeoff
+  evidence       String?
+  priority       Int        @default(3) // 1-5
+  status         IdeaStatus @default(SAVED)
+  notes          String?
+  isArchived     Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  user         LinkerUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pillar       LinkerContentPillar? @relation(fields: [pillarId], references: [id], onDelete: SetNull)
+  project      LinkerProject?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  journalEntry LinkerJournalEntry?  @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+  drafts       LinkerDraft[]
+
+  @@map("linker_ideas")
+}
+
+// ─────────────────────────────────────────
+// RESEARCH
+// ─────────────────────────────────────────
+
+enum ResearchVerificationState {
+  VERIFIED
+  USER_PROVIDED
+  AI_INTERPRETATION
+  OPINION
+  UNVERIFIED_CLAIM
+  NEEDS_VERIFICATION
+}
+
+model LinkerResearchRecord {
+  id                String                    @id @default(cuid())
+  userId            String
+  topic             String
+  sourceTitle       String?
+  sourceUrl         String?
+  publicationDate   DateTime?
+  author            String?
+  keyPoints         String[]
+  facts             String[]
+  opinions          String[]
+  relevantClaims    String[]
+  verificationState ResearchVerificationState @default(UNVERIFIED_CLAIM)
+  notes             String?
+  isArchived        Boolean                   @default(false)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  user   LinkerUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drafts LinkerDraft[]
+
+  @@map("linker_research_records")
+}
+
+// ─────────────────────────────────────────
+// DRAFTS & CONTENT STUDIO
+// ─────────────────────────────────────────
+
+enum DraftStatus {
+  DRAFT
+  IN_REVIEW
+  NEEDS_CHANGES
+  APPROVED
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+  ARCHIVED
+}
+
+model LinkerDraft {
+  id             String      @id @default(cuid())
+  userId         String
+  ideaId         String?
+  pillarId       String?
+  projectId      String?
+  researchId     String?
+  title          String?
+  content        String
+  status         DraftStatus @default(DRAFT)
+  purpose        String?
+  targetAudience String?
+  contextUsed    Json?       // snapshot of context used at generation time
+  aiModel        String?     // which model generated this
+  aiProvider     String?     // groq | openrouter
+  humanApproved  Boolean     @default(false)
+  approvedAt     DateTime?
+  scheduledFor   DateTime?
+  timezone       String?
+  publishedAt    DateTime?
+  linkedinPostId String?
+  failureReason  String?
+  isArchived     Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user             LinkerUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idea             LinkerIdea?            @relation(fields: [ideaId], references: [id], onDelete: SetNull)
+  pillar           LinkerContentPillar?   @relation(fields: [pillarId], references: [id], onDelete: SetNull)
+  project          LinkerProject?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  research         LinkerResearchRecord?  @relation(fields: [researchId], references: [id], onDelete: SetNull)
+  versions         LinkerDraftVersion[]
+  reviews          LinkerDraftReview[]
+  scheduledPosts   LinkerScheduledPost[]
+  publishingAttempts LinkerPublishingAttempt[]
+
+  @@map("linker_drafts")
+}
+
+model LinkerDraftVersion {
+  id        String   @id @default(cuid())
+  draftId   String
+  content   String
+  version   Int
+  notes     String?
+  createdAt DateTime @default(now())
+
+  draft LinkerDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@map("linker_draft_versions")
+}
+
+model LinkerDraftReview {
+  id         String   @id @default(cuid())
+  draftId    String
+  findings   Json     // array of { type, message, severity }
+  aiModel    String?
+  aiProvider String?
+  createdAt  DateTime @default(now())
+
+  draft LinkerDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@map("linker_draft_reviews")
+}
+
+// ─────────────────────────────────────────
+// SCHEDULING & PUBLISHING
+// ─────────────────────────────────────────
+
+model LinkerScheduledPost {
+  id             String      @id @default(cuid())
+  draftId        String
+  scheduledFor   DateTime
+  timezone       String      @default("UTC")
+  status         DraftStatus @default(SCHEDULED)
+  idempotencyKey String      @unique @default(cuid())
+  cancelledAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  draft              LinkerDraft               @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  publishingAttempts LinkerPublishingAttempt[]
+
+  @@map("linker_scheduled_posts")
+}
+
+model LinkerPublishingAttempt {
+  id               String    @id @default(cuid())
+  draftId          String
+  scheduledPostId  String?
+  idempotencyKey   String    @unique @default(cuid())
+  provider         String    @default("linkedin")
+  status           String    // PENDING | SUCCESS | FAILED | DUPLICATE_PREVENTED
+  providerResponse Json?
+  linkedinPostId   String?
+  errorMessage     String?
+  attemptedAt      DateTime  @default(now())
+  completedAt      DateTime?
+
+  draft         LinkerDraft          @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  scheduledPost LinkerScheduledPost? @relation(fields: [scheduledPostId], references: [id], onDelete: SetNull)
+
+  @@map("linker_publishing_attempts")
+}
+
+// ─────────────────────────────────────────
+// LINKEDIN INTEGRATION
+// ─────────────────────────────────────────
+
+model LinkerLinkedinConnection {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  linkedinId      String?
+  displayName     String?
+  profilePicture  String?
+  scope           String[]
+  // Tokens stored server-side ONLY — never exposed to client
+  accessToken     String?
+  refreshToken    String?
+  expiresAt       DateTime?
+  isActive        Boolean   @default(false)
+  lastVerifiedAt  DateTime?
+  disconnectedAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user LinkerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("linker_linkedin_connections")
+}
+
+// ─────────────────────────────────────────
+// AI RUNS (audit trail)
+// ─────────────────────────────────────────
+
+model LinkerAiRun {
+  id             String   @id @default(cuid())
+  userId         String
+  runType        String   // draft_generation | quality_review | idea_suggestion | context_retrieval
+  provider       String   // groq | openrouter
+  model          String
+  promptTokens   Int?
+  responseTokens Int?
+  durationMs     Int?
+  status         String   // success | failed | fallback_used
+  errorMessage   String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  user LinkerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("linker_ai_runs")
+}
+
+// ─────────────────────────────────────────
+// ANALYTICS
+// ─────────────────────────────────────────
+
+model LinkerAnalyticsRecord {
+  id           String   @id @default(cuid())
+  userId       String
+  draftId      String?
+  source       String   // linkedin_api | user_entered | calculated
+  metric       String   // impressions | reactions | comments | clicks | shares
+  value        Float
+  recordedAt   DateTime @default(now())
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  user LinkerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("linker_analytics_records")
+}
