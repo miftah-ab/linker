@@ -1,6 +1,6 @@
 // src/lib/ai/review.ts
-// LINKER — Quality Review Engine
-// Produces actionable findings — NOT fake scores or percentages.
+// LINKER - Quality Review Engine
+// Produces actionable findings - NOT fake scores or percentages.
 
 import { complete } from './provider';
 import type { ContentContext } from './context';
@@ -223,7 +223,6 @@ export async function runQualityReview(
 
   // Only run AI review if a provider is configured
   try {
-    const { complete: _complete, ..._ } = await import('./provider');
     const aiResult = await complete({
       messages: [{ role: 'user', content: 'test' }],
       maxTokens: 1,
@@ -234,7 +233,7 @@ export async function runQualityReview(
 
     aiFindings = await runAIReview(content, ctx);
   } catch {
-    // AI not configured — rule-based only, that's fine
+    // AI not configured - rule-based only, that's fine
   }
 
   return {

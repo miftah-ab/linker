@@ -1,5 +1,5 @@
 // src/app/api/dashboard/stats/route.ts
-// LINKER — Dashboard overview statistics API
+// LINKER - Dashboard overview statistics API
 
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';

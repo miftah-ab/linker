@@ -1,9 +1,9 @@
 'use client';
 
 // src/app/app/knowledge/page.tsx
-// LINKER — Knowledge Base: Grounding Assets for AI Content
+// LINKER - Knowledge Base: Grounding Assets for AI Content
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 interface KnowledgeEntry {
   id: string;
@@ -32,7 +32,7 @@ export default function KnowledgePage() {
   const [source, setSource] = useState('');
   const [saving, setSaving] = useState(false);
 
-  async function loadEntries() {
+  const loadEntries = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (categoryFilter !== 'ALL') params.append('category', categoryFilter);
@@ -48,11 +48,11 @@ export default function KnowledgePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [categoryFilter, search]);
 
   useEffect(() => {
     loadEntries();
-  }, [categoryFilter, search]);
+  }, [loadEntries]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();

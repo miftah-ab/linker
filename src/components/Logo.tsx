@@ -1,5 +1,5 @@
 // src/components/Logo.tsx
-// LINKER — Logo components (SVG-based, works at all sizes)
+// LINKER - Logo components (SVG-based, works at all sizes)
 
 import React from 'react';
 
@@ -61,15 +61,14 @@ export function LinkerFavicon() {
   );
 }
 
-// ── Full wordmark ─────────────────────────────────────────────
 interface WordmarkProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | number;
   className?: string;
 }
 
 export function LinkerWordmark({ size = 'md', className }: WordmarkProps) {
-  const markSize = size === 'sm' ? 24 : size === 'lg' ? 40 : 32;
-  const textSize = size === 'sm' ? '16px' : size === 'lg' ? '26px' : '20px';
+  const markSize = typeof size === 'number' ? size : size === 'sm' ? 24 : size === 'lg' ? 40 : 32;
+  const textSize = typeof size === 'number' ? `${Math.round(size * 0.625)}px` : size === 'sm' ? '16px' : size === 'lg' ? '26px' : '20px';
 
   return (
     <span
@@ -138,3 +137,8 @@ export function LinkerAppIcon({ size = 64 }: LogoProps) {
     </svg>
   );
 }
+
+// Compatibility aliases
+export const LogoMark = LinkerMark;
+export const LogoWordmark = LinkerWordmark;
+

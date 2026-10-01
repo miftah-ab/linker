@@ -1,7 +1,7 @@
 'use client';
 
 // src/components/MobileNav.tsx
-// LINKER — Mobile Bottom Navigation Bar
+// LINKER - Mobile Bottom Navigation Bar
 
 import React from 'react';
 import Link from 'next/link';

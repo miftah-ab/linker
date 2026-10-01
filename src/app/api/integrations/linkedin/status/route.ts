@@ -1,9 +1,10 @@
 // src/app/api/integrations/linkedin/status/route.ts
-// LINKER — Check LinkedIn connection status
+// LINKER - Check LinkedIn connection status
 
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { getLinkedInMissingConfig } from '@/lib/linkedin';
 
 export async function GET() {
   const session = await auth();
@@ -15,29 +16,37 @@ export async function GET() {
     where: { userId: session.user.id },
     select: {
       id: true,
-      linkedinMemberId: true,
-      memberUrn: true,
-      tokenExpiresAt: true,
+      linkedinId: true,
+      displayName: true,
+      expiresAt: true,
       scope: true,
+      isActive: true,
+      lastVerifiedAt: true,
       createdAt: true,
-      updatedAt: true,
     },
   });
 
-  if (!connection) {
+  const configured = getLinkedInMissingConfig().length === 0;
+
+  if (!connection || !connection.isActive) {
     return NextResponse.json({
       connected: false,
-      configured: Boolean(process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET),
+      configured,
+      missingConfig: getLinkedInMissingConfig(),
     });
   }
 
-  const isExpired = connection.tokenExpiresAt ? new Date(connection.tokenExpiresAt) < new Date() : false;
+  const isExpired = connection.expiresAt ? new Date(connection.expiresAt) < new Date() : false;
 
   return NextResponse.json({
     connected: !isExpired,
     isExpired,
-    memberUrn: connection.memberUrn,
+    configured,
+    displayName: connection.displayName,
+    linkedinId: connection.linkedinId,
     scope: connection.scope,
-    configured: Boolean(process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET),
+    lastVerifiedAt: connection.lastVerifiedAt,
+    connectedSince: connection.createdAt,
+    missingConfig: getLinkedInMissingConfig(),
   });
 }

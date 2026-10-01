@@ -1,7 +1,7 @@
 'use client';
 
 // src/components/Header.tsx
-// LINKER — Top App Shell Header
+// LINKER - Top App Shell Header
 
 import React from 'react';
 import Link from 'next/link';

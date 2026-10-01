@@ -1,5 +1,5 @@
 // src/lib/ai/provider.ts
-// LINKER — AI Provider with Groq (primary) + OpenRouter (fallback)
+// LINKER - AI Provider with Groq (primary) + OpenRouter (fallback)
 
 import Groq from 'groq-sdk';
 

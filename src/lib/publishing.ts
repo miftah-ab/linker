@@ -1,9 +1,10 @@
 // src/lib/publishing.ts
-// LINKER — Reliable Publishing Service
+// LINKER - Reliable Publishing Service
 // Handles state transitions, idempotency, duplicate prevention, and audit trail.
 // Only marks a post as Published after confirmed provider success.
 
 import { prisma } from './prisma';
+import { Prisma } from '@prisma/client';
 import { publishToLinkedIn } from './linkedin';
 
 export type PublishingState =
@@ -42,7 +43,7 @@ export async function executeDraftPublish(params: {
     };
   }
 
-  // 3. Duplicate prevention — check for existing successful attempt
+  // 3. Duplicate prevention - check for existing successful attempt
   const existingSuccess = await prisma.linkerPublishingAttempt.findFirst({
     where: { draftId, status: 'SUCCESS' },
   });
@@ -157,7 +158,7 @@ export async function executeDraftPublish(params: {
       data: {
         status: 'FAILED',
         errorMessage: result.errorMessage,
-        providerResponse: result.providerResponse as object | null,
+        providerResponse: (result.providerResponse as unknown as Prisma.InputJsonValue) ?? undefined,
         completedAt: new Date(),
       },
     });

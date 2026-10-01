@@ -1,5 +1,5 @@
 // src/lib/ai/context.ts
-// LINKER — AI Context Engine
+// LINKER - AI Context Engine
 // Retrieves relevant context for content generation based on the selected idea,
 // pillar, project, knowledge base, journal, and strategy.
 // Does NOT blindly dump the entire database into every prompt.

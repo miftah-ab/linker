@@ -1,5 +1,5 @@
 // src/lib/prisma.ts
-// LINKER — Prisma client singleton (safe for Next.js hot reload)
+// LINKER - Prisma client singleton (safe for Next.js hot reload)
 
 import { PrismaClient } from '@prisma/client';
 

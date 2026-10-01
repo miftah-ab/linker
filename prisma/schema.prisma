@@ -1,5 +1,5 @@
 // prisma/schema.prisma
-// LINKER — Full Database Schema
+// LINKER - Full Database Schema
 // All tables use the linker_ prefix as required.
 // Database: Supabase (PostgreSQL)
 
@@ -540,7 +540,7 @@ model LinkerLinkedinConnection {
   displayName     String?
   profilePicture  String?
   scope           String[]
-  // Tokens stored server-side ONLY — never exposed to client
+  // Tokens stored server-side ONLY - never exposed to client
   accessToken     String?
   refreshToken    String?
   expiresAt       DateTime?

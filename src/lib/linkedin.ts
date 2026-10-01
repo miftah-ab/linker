@@ -1,5 +1,5 @@
 // src/lib/linkedin.ts
-// LINKER — LinkedIn API integration
+// LINKER - LinkedIn API integration
 // Uses ONLY official OAuth 2.0 and LinkedIn Share API (v2/ugcPosts)
 // Tokens are NEVER exposed to the client.
 // Honest state when credentials are not configured.

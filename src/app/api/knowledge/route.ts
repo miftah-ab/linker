@@ -1,5 +1,5 @@
 // src/app/api/knowledge/route.ts
-// LINKER — Knowledge Base CRUD API
+// LINKER - Knowledge Base CRUD API
 
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';

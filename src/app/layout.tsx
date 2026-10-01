@@ -1,15 +1,16 @@
 // src/app/layout.tsx
-// LINKER — Root layout
+// LINKER - Root layout
 
 import type { Metadata, Viewport } from 'next';
 import '@/styles/globals.css';
 import '@/styles/components.css';
 import '@/styles/layout.css';
+import '@/styles/landing.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Linker — Your professional presence, intentionally built.',
+    default: 'Linker - Your professional presence, intentionally built.',
     template: '%s | Linker',
   },
   description:
@@ -29,13 +30,13 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://linker.app',
     siteName: 'Linker',
-    title: 'Linker — Your professional presence, intentionally built.',
+    title: 'Linker - Your professional presence, intentionally built.',
     description:
       'Turn your real knowledge, projects, and experiences into strategic LinkedIn content.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Linker — Your professional presence, intentionally built.',
+    title: 'Linker - Your professional presence, intentionally built.',
     description:
       'Turn your real knowledge, projects, and experiences into strategic LinkedIn content.',
   },

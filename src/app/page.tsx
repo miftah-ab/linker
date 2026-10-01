@@ -1,5 +1,5 @@
 // src/app/page.tsx
-// LINKER — Production Landing Page
+// LINKER - Production Landing Page
 
 import Link from 'next/link';
 import { LogoWordmark, LogoMark } from '@/components/Logo';

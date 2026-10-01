@@ -1,39 +1,22 @@
 // src/middleware.ts
-// LINKER — Route protection middleware
+// Route protection & session refresh using Supabase
 
-import { auth } from '@/lib/auth';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
+import { updateSession } from '@/lib/supabase/middleware';
 
-const PUBLIC_ROUTES = ['/', '/auth/signin', '/auth/signup', '/auth/error'];
-const AUTH_API_ROUTES = ['/api/auth'];
-
-export default auth(function middleware(req: NextRequest & { auth?: { user?: { id?: string } } }) {
-  const { pathname } = req.nextUrl;
-
-  // Always allow public routes and auth API routes
-  if (
-    PUBLIC_ROUTES.includes(pathname) ||
-    AUTH_API_ROUTES.some((r) => pathname.startsWith(r))
-  ) {
-    return NextResponse.next();
-  }
-
-  // Protect /app/* routes
-  if (pathname.startsWith('/app')) {
-    const session = (req as unknown as { auth?: { user?: { id?: string } } }).auth;
-    if (!session?.user?.id) {
-      const signInUrl = new URL('/auth/signin', req.url);
-      signInUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(signInUrl);
-    }
-  }
-
-  return NextResponse.next();
-});
+export async function middleware(request: NextRequest) {
+  return await updateSession(request);
+}
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

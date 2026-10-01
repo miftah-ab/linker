@@ -1,7 +1,7 @@
 'use client';
 
 // src/app/app/identity/page.tsx
-// LINKER — Professional Identity, Evidence State, and Voice Rules
+// LINKER - Professional Identity, Evidence State, and Voice Rules
 
 import React, { useEffect, useState } from 'react';
 

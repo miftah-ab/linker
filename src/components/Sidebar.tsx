@@ -1,13 +1,13 @@
 'use client';
 
 // src/components/Sidebar.tsx
-// LINKER — Main Navigation Sidebar
+// LINKER - Main Navigation Sidebar
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LogoMark, LogoWordmark } from './Logo';
-import { signOut } from 'next-auth/react';
+import { signOut } from '@/lib/supabase/auth-client';
 
 interface NavItem {
   label: string;

@@ -1,10 +1,10 @@
 'use client';
 
 // src/app/app/layout.tsx
-// LINKER — Authenticated Application Shell
+// LINKER - Authenticated Application Shell
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession } from '@/lib/supabase/auth-client';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
