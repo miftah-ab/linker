@@ -7,6 +7,7 @@ import '@/styles/components.css';
 import '@/styles/layout.css';
 import '@/styles/landing.css';
 import { Providers } from './providers';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: {
@@ -73,6 +74,7 @@ export default function RootLayout({
       <head />
       <body>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
