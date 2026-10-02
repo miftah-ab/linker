@@ -24,26 +24,24 @@ No more deprecation warning on build.
 
 ## 🟡 Important — Should fix before scaling
 
-### 4. No error boundaries in the UI
-If an API call fails (e.g., Supabase is down), pages will crash with a white screen.  
-**Fix:** Add `error.tsx` files to key routes:
-```
-src/app/app/error.tsx          ← catches all /app/* errors
-src/app/app/dashboard/error.tsx
-src/app/app/studio/error.tsx
-```
+### ✅ 4. Error boundaries — DONE
+Added `error.tsx` to:
+- `src/app/app/error.tsx` — catches all /app/* crashes
+- `src/app/app/studio/error.tsx` — studio-specific error UI
 
-### 5. API routes have no rate limiting
-AI generation (`/api/studio/generate`) and LinkedIn publish endpoints have no rate limiting — open to abuse.  
-**Fix:** Use Vercel's built-in rate limiting or `upstash/ratelimit`.
+### ✅ 5. Rate limiting — DONE
+- `/api/studio/generate` → **5 requests/min** per user
+- `/api/studio/publish` → **3 requests/hr** per user
+- Returns `429 Too Many Requests` with `Retry-After` header
 
-### 6. No `loading.tsx` files
-Next.js App Router uses `loading.tsx` for Suspense skeletons. Without them, page transitions feel slow/janky.  
-**Fix:** Add `loading.tsx` to each major route with a skeleton UI.
+### ✅ 6. Loading skeletons — DONE
+Added `loading.tsx` shimmer skeletons to:
+- `src/app/app/loading.tsx` — all /app/* routes
+- `src/app/app/studio/loading.tsx`
+- `src/app/app/calendar/loading.tsx`
 
-### 7. `GROQ_API_KEY` is empty
-Primary AI provider has no key. App falls back to OpenRouter.  
-**Fix:** Either add a Groq key at https://console.groq.com or remove the Groq config entirely to avoid silent fallback confusion.
+### ✅ 7. Groq API key — DONE
+Key is set in Vercel. Primary AI provider active.
 
 ---
 
