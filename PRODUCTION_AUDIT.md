@@ -1,100 +1,83 @@
 # 🚦 Production Readiness Audit — Linker
 
-## Overall Verdict: **Not Yet** — ~70% ready
-
-The build is clean and the UI is polished, but there are **critical security issues** that must be fixed before going live.
-
----
-
-## 🔴 Critical (Must fix before production)
-
-### 1. `.env.local` contains real secrets — and it's almost in git
-Your `.env.local` file contains live credentials:
-- **Supabase DB password** in the `DATABASE_URL`
-- **OpenRouter API key** (`sk-or-v1-...`)
-- **LinkedIn Client Secret**
-- **CRON_SECRET**
-
-✅ Good news: `.gitignore` has `.env*` so the file is NOT committed.  
-⚠️ Bad news: Anyone on your machine can read it, and you must set these on Vercel as environment variables — **not** in the repo.
-
-**Action:** Set all secrets in Vercel dashboard → Settings → Environment Variables.
+**Last updated:** 2026-10-02  
+**Overall Verdict: ✅ Critical issues resolved — ~85% ready**
 
 ---
 
-### 2. Dev-login bypass is shipped to production code
-`/api/auth/dev-login` exists in your production build. While it checks for `localhost` hostname, this is **not safe enough** — the `NODE_ENV` check can be spoofed via environment, and the cookie (`dev_session=true`, `httpOnly: false`) is readable by JavaScript.
+## 🔴 Critical — ALL FIXED ✅
 
-```
-httpOnly: false  ← XSS can read/set this cookie
-```
+### ✅ 1. Env vars in Vercel
+All secrets (Supabase, OpenRouter, LinkedIn, CRON_SECRET) are set in Vercel dashboard.  
+`.env.local` is correctly gitignored and not in the repo.
 
-**Action: Before deploying to production, either:**
-- Delete `src/app/api/auth/dev-login/route.ts` entirely, or
-- Wrap it with `if (process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== 'true') return 403`  
-  and **never** set that env var in Vercel.
+### ✅ 2. Dev-login hardened
+`/api/auth/dev-login` now returns **404 in production**.  
+Requires both `NODE_ENV=development` AND `ENABLE_DEV_LOGIN=true` to activate.  
+Cookie is now `httpOnly: true` (XSS-safe).
 
----
-
-### 3. Middleware deprecation warning
-```
-⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
-```
-Next.js 16 renamed `middleware.ts` → `proxy.ts`. This **will break** in a future Next.js version.
-
-**Action:** Run:
-```bash
-npx @next/codemod@canary middleware-to-proxy .
-```
+### ✅ 3. Middleware → proxy.ts
+`src/proxy.ts` created for Next.js 16 convention.  
+No more deprecation warning on build.
 
 ---
 
-## 🟡 Important (Should fix soon)
+## 🟡 Important — Should fix before scaling
 
 ### 4. No error boundaries in the UI
-If an API call fails (e.g., Supabase is down), pages will crash with a white screen. No `error.tsx` files exist.
+If an API call fails (e.g., Supabase is down), pages will crash with a white screen.  
+**Fix:** Add `error.tsx` files to key routes:
+```
+src/app/app/error.tsx          ← catches all /app/* errors
+src/app/app/dashboard/error.tsx
+src/app/app/studio/error.tsx
+```
 
 ### 5. API routes have no rate limiting
-Your AI generation endpoints (`/api/studio/generate`) and LinkedIn publish endpoints have no rate limiting — open to abuse.
+AI generation (`/api/studio/generate`) and LinkedIn publish endpoints have no rate limiting — open to abuse.  
+**Fix:** Use Vercel's built-in rate limiting or `upstash/ratelimit`.
 
 ### 6. No `loading.tsx` files
-Next.js App Router uses `loading.tsx` for Suspense boundaries. Without them, page transitions feel slow.
+Next.js App Router uses `loading.tsx` for Suspense skeletons. Without them, page transitions feel slow/janky.  
+**Fix:** Add `loading.tsx` to each major route with a skeleton UI.
 
 ### 7. `GROQ_API_KEY` is empty
-Your primary AI provider has no key set. The app falls back to OpenRouter, but this could fail silently.
+Primary AI provider has no key. App falls back to OpenRouter.  
+**Fix:** Either add a Groq key at https://console.groq.com or remove the Groq config entirely to avoid silent fallback confusion.
 
 ---
 
-## 🟢 What's Already Good
+## 🟢 What's Good
 
 | Area | Status |
 |------|--------|
 | Build | ✅ Clean, 0 errors |
 | TypeScript | ✅ Passes |
-| Auth flow (Supabase) | ✅ Correct middleware |
+| Auth flow (Supabase) | ✅ Correct middleware/proxy |
 | `.env` not in git | ✅ Properly gitignored |
-| Favicon / brand assets | ✅ Full set generated |
+| Env vars on Vercel | ✅ All set |
+| Dev-login bypass | ✅ Disabled in production |
+| Favicon / brand assets | ✅ Full set (16, 32, 192, 512, apple, svg, ico) |
 | Responsive UI | ✅ Fixed across all pages |
 | Lucide icons | ✅ Consistent throughout |
 | LinkedIn OAuth | ✅ Redirect URI set to production URL |
 | Static pages | ✅ 45 pages pre-rendered |
+| proxy.ts | ✅ Next.js 16 convention adopted |
 
 ---
 
-## ✅ Pre-Production Checklist
+## Remaining Checklist
 
-- [ ] **Delete or guard** `src/app/api/auth/dev-login/route.ts`
-- [ ] **Set all env vars** in Vercel dashboard (not in repo)
-- [ ] **Run middleware codemod**: `npx @next/codemod@canary middleware-to-proxy .`
-- [ ] **Add Groq API key** or confirm OpenRouter fallback is sufficient
-- [ ] **Add `error.tsx`** files to key routes
-- [ ] **Test real Supabase auth** end-to-end on production URL
-- [ ] **Rotate credentials** if you've ever pushed `.env.local` by accident
+- [ ] Add `error.tsx` to `/app/app/` and key sub-routes
+- [ ] Add `loading.tsx` skeleton screens to key routes  
+- [ ] Add rate limiting to `/api/studio/generate` and `/api/studio/publish`
+- [ ] Add or remove Groq API key (clarify primary AI provider)
+- [ ] End-to-end test real Supabase auth on production URL
 
 ---
 
-## Quick Fix Priority
+## Quick Priority Order
 
 ```
-🔴 Fix dev-login bypass  →  🔴 Set Vercel env vars  →  🟡 Run middleware codemod  →  Deploy
+error.tsx  →  loading.tsx  →  rate limiting  →  Groq key decision
 ```
