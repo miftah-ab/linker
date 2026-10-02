@@ -137,17 +137,11 @@ export default function DashboardPage() {
 
       {/* ── Stats row ── */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-3)' }}>
+        <div className="stats-overview">
           {[1, 2, 3, 4, 5, 6].map(i => <SkeletonBlock key={i} height={72} />)}
         </div>
       ) : stats ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(6, 1fr)',
-          gap: 'var(--space-3)',
-        }}
-          className="stats-overview"
-        >
+        <div className="stats-overview">
           {[
             { label: 'Projects',      value: stats.projects,        href: '/app/projects' },
             { label: 'Journal',       value: stats.journalEntries,  href: '/app/journal' },
@@ -204,13 +198,7 @@ export default function DashboardPage() {
         <div className="section-header">
           <span className="section-title">Quick Actions</span>
         </div>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 'var(--space-3)',
-        }}
-          className="quick-actions-grid"
-        >
+        <div className="quick-actions-grid">
           {QUICK_ACTIONS.map(action => (
             <Link key={action.href} href={action.href} style={{ textDecoration: 'none' }}>
               <div
@@ -267,14 +255,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Recent activity: ideas + drafts ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: 'var(--space-6)',
-        alignItems: 'start',
-      }}
-        className="activity-grid"
-      >
+      <div className="activity-grid">
         {/* Recent Ideas */}
         <div>
           <div className="section-header">

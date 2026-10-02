@@ -331,18 +331,57 @@
 }
 
 /* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .landing-nav-inner { padding: 0 var(--space-5); }
+  .hero { padding: var(--space-20) var(--space-5) var(--space-16); }
+  .landing-section { padding: var(--space-16) var(--space-5); }
+  .cta-section { padding: var(--space-20) var(--space-5); }
+  .landing-footer { padding: var(--space-6) var(--space-5); }
+
+  .feature-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
-  .hero { padding: var(--space-16) var(--space-5) var(--space-12); }
-  .hero-subtitle { font-size: var(--font-size-base); }
-  .landing-section { padding: var(--space-14) var(--space-5); }
-  .landing-nav-inner { padding: 0 var(--space-4); }
+  .hero { padding: var(--space-16) var(--space-4) var(--space-12); }
+  .hero-subtitle { font-size: var(--font-size-base); max-width: 100%; }
+  .landing-section { padding: var(--space-12) var(--space-4); }
+  .landing-nav-inner { padding: 0 var(--space-4); height: 56px; }
+  .cta-section { padding: var(--space-16) var(--space-4); }
+
+  .workflow-steps {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+  }
+
+  .trust-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+  }
+
+  .landing-footer-inner { flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+  .landing-footer-links { flex-wrap: wrap; gap: var(--space-3); }
+
+  /* Hide sign-in link on mobile nav, keep only CTA button */
+  .landing-nav-signin { display: none; }
 }
 
 @media (max-width: 480px) {
   .hero { padding: var(--space-12) var(--space-4) var(--space-10); }
-  .hero-actions { flex-direction: column; width: 100%; }
+  .hero-eyebrow { font-size: 10px; }
+  .hero-actions { flex-direction: column; width: 100%; align-items: stretch; }
   .hero-actions .btn { width: 100%; justify-content: center; }
   .landing-section { padding: var(--space-10) var(--space-4); }
-  .landing-footer-inner { flex-direction: column; align-items: flex-start; }
   .landing-nav-inner { height: 52px; }
+  .cta-section { padding: var(--space-12) var(--space-4); }
+  .cta-inner .btn { width: 100%; margin-bottom: var(--space-2); }
 }
+
