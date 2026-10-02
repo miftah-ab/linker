@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { executeDraftPublish } from '@/lib/publishing';
+import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -18,6 +19,10 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
+
+  // Rate limit: 3 publishes per user per hour
+  const rl = rateLimit(`publish:${user.id}`, 3, 60 * 60_000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
   const { draftId } = body as { draftId?: string };

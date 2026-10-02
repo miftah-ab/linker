@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { retrieveContentContext } from '@/lib/ai/context';
 import { generateDraft } from '@/lib/ai/generate';
+import { rateLimit, rateLimitResponse } from '@/lib/rateLimit';
 
 
 export async function POST(request: Request) {
@@ -14,6 +15,10 @@ export async function POST(request: Request) {
 
   const user = await prisma.linkerUser.findUnique({ where: { email: session.user.email } });
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+  // Rate limit: 5 AI generations per user per minute
+  const rl = rateLimit(`generate:${user.id}`, 5, 60_000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
 
   const body = await request.json();
   const { ideaId, pillarId, projectId, purpose, targetAudience, tone, additionalInstructions } = body;
