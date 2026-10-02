@@ -148,6 +148,14 @@
   height: 16px;
   flex-shrink: 0;
   opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-nav-icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 .sidebar-nav-item-active .sidebar-nav-icon {
@@ -389,7 +397,8 @@
     box-shadow: var(--shadow-xl);
   }
 
-  .sidebar-open {
+  /* Wrapper div gets sidebar-open class — pass it down to the sidebar child */
+  .sidebar-open .sidebar {
     transform: translateX(0);
   }
 
@@ -422,5 +431,41 @@
 @media (max-width: 390px) {
   :root {
     --page-padding: var(--space-3);
+  }
+}
+
+/* ── Calendar layout ────────────────────────────────────────── */
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Calendar day cells ─────────────────────────────────────── */
+@media (max-width: 600px) {
+  .calendar-layout .card[style*="padding: 0"] [style*="minHeight: 80"] {
+    min-height: 52px;
+    padding: var(--space-1);
+  }
+}
+
+/* Studio Editor layout */
+.studio-editor-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .studio-editor-layout {
+    grid-template-columns: 1fr;
   }
 }

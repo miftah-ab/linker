@@ -82,7 +82,7 @@ export default function CalendarPage() {
         <Link href="/app/studio" className="btn btn-primary">Open Studio →</Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 'var(--space-4)', alignItems: 'start' }}>
+      <div className="calendar-layout">
         {/* ── Calendar Grid ── */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           {/* Month Navigation */}

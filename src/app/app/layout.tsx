@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSession } from '@/lib/supabase/auth-client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { MobileNav } from '@/components/MobileNav';
@@ -13,18 +13,22 @@ import { MobileNav } from '@/components/MobileNav';
 export default function AppShellLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLinkedInConnected, setIsLinkedInConnected] = useState(false);
 
   useEffect(() => {
-    // If not authenticated in production, redirect to signin
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
     }
   }, [status, router]);
 
+  // Close mobile menu on route change
   useEffect(() => {
-    // Check if user has an active LinkedIn connection
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     async function checkLinkedIn() {
       try {
         const res = await fetch('/api/integrations/linkedin/status');
@@ -43,39 +47,21 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
 
   return (
     <div className="app-shell">
-      {/* Desktop & Tablet Sidebar */}
-      <Sidebar
-        userEmail={session?.user?.email || undefined}
-        userName={session?.user?.name || undefined}
-      />
+      {/* Sidebar — hidden on mobile by default, opens via sidebar-open class */}
+      <div className={mobileMenuOpen ? 'sidebar-open' : ''}>
+        <Sidebar
+          userEmail={session?.user?.email || undefined}
+          userName={session?.user?.name || undefined}
+        />
+      </div>
 
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile overlay backdrop */}
       {mobileMenuOpen && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            zIndex: 100,
-            display: 'flex',
-          }}
+          className="sidebar-overlay"
           onClick={() => setMobileMenuOpen(false)}
-        >
-          <div
-            style={{
-              width: 280,
-              height: '100%',
-              backgroundColor: 'var(--color-surface)',
-              borderRight: '1px solid var(--color-border)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Sidebar
-              userEmail={session?.user?.email || undefined}
-              userName={session?.user?.name || undefined}
-            />
-          </div>
-        </div>
+          aria-hidden="true"
+        />
       )}
 
       {/* Main Content Area */}
@@ -90,3 +76,4 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
     </div>
   );
 }
+

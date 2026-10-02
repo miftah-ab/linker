@@ -225,7 +225,7 @@ function StudioContent() {
         )
       ) : (
         /* ── Editor View ── */
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 'var(--space-4)', alignItems: 'start' }}>
+        <div className="studio-editor-layout">
           {/* Left Panel: Context */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <div className="card">

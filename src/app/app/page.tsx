@@ -5,6 +5,12 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from '@/lib/supabase/auth-client';
+import {
+  NotebookPen,
+  Lightbulb,
+  PenLine,
+  FolderKanban,
+} from 'lucide-react';
 
 interface DashboardStats {
   projects: number;
@@ -43,36 +49,13 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   SCHEDULED:   { label: 'Scheduled',   color: '#2563EB', bg: '#EFF6FF' },
 };
 
-// SVG icons for quick actions — no emojis
-const QuickActionIcon = {
-  journal: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="9" y1="13" x2="15" y2="13" /><line x1="9" y1="17" x2="12" y2="17" />
-    </svg>
-  ),
-  idea: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-    </svg>
-  ),
-  draft: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-    </svg>
-  ),
-  project: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-    </svg>
-  ),
-};
-
 const QUICK_ACTIONS = [
-  { href: '/app/journal',  label: 'New Journal Entry', description: 'Document work as it happens', icon: QuickActionIcon.journal, accent: 'var(--color-accent-violet)' },
-  { href: '/app/ideas',    label: 'Capture Idea',      description: 'Log a content idea',         icon: QuickActionIcon.idea,    accent: 'var(--color-warning)' },
-  { href: '/app/studio',   label: 'Write a Draft',     description: 'Open Content Studio',        icon: QuickActionIcon.draft,   accent: 'var(--color-primary)' },
-  { href: '/app/projects', label: 'Add Project',       description: 'Document a real project',    icon: QuickActionIcon.project, accent: 'var(--color-success)' },
+  { href: '/app/journal',  label: 'New Journal Entry', description: 'Document work as it happens', icon: <NotebookPen size={16} strokeWidth={1.75} />, accent: 'var(--color-accent-violet)' },
+  { href: '/app/ideas',    label: 'Capture Idea',      description: 'Log a content idea',         icon: <Lightbulb size={16} strokeWidth={1.75} />,    accent: 'var(--color-warning)' },
+  { href: '/app/studio',   label: 'Write a Draft',     description: 'Open Content Studio',        icon: <PenLine size={16} strokeWidth={1.75} />,      accent: 'var(--color-primary)' },
+  { href: '/app/projects', label: 'Add Project',       description: 'Document a real project',    icon: <FolderKanban size={16} strokeWidth={1.75} />, accent: 'var(--color-success)' },
 ];
+
 
 function SkeletonBlock({ height = 80 }: { height?: number }) {
   return (
