@@ -4,6 +4,7 @@
 // LINKER - Content Strategy & Pillars
 
 import React, { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 
 interface Pillar {
   id: string;
@@ -350,7 +351,7 @@ export default function StrategyPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
               <h3 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-text-primary)' }}>New Content Pillar</h3>
               <button className="btn btn-ghost" style={{ padding: 'var(--space-1)' }} onClick={() => setShowPillarModal(false)}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <X size={20} strokeWidth={2} />
               </button>
             </div>
 

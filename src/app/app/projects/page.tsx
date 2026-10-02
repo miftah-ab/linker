@@ -4,6 +4,7 @@
 // LINKER - Projects Module
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { Plus, Search, FolderKanban, Pencil, Trash2, ChevronDown, Check, X } from 'lucide-react';
 
 interface Milestone {
   id: string;
@@ -177,9 +178,7 @@ export default function ProjectsPage() {
           </p>
         </div>
         <button id="create-project-btn" className="btn btn-primary" onClick={openCreate} style={{ flexShrink: 0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus size={16} strokeWidth={2.5} />
           New Project
         </button>
       </div>
@@ -187,9 +186,7 @@ export default function ProjectsPage() {
       {/* ── Filters ── */}
       <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: '1 1 220px' }}>
-          <svg style={{ position: 'absolute', left: 'var(--space-3)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+          <Search style={{ position: "absolute", left: "var(--space-3)", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} size={15} strokeWidth={2} />
           <input
             id="project-search"
             className="form-input"
@@ -221,22 +218,20 @@ export default function ProjectsPage() {
 
       {/* ── Project Grid ── */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 'var(--space-4)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: 'var(--space-4)' }}>
           {[1, 2, 3].map(i => (
             <div key={i} className="card" style={{ height: 200, background: 'var(--color-surface-muted)', animation: 'pulse 1.5s infinite' }} />
           ))}
         </div>
       ) : filteredProjects.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 'var(--space-16) var(--space-4)' }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="1.5" style={{ margin: '0 auto var(--space-4)' }}>
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-          </svg>
+          <FolderKanban size={48} strokeWidth={1.5} color="var(--color-text-muted)" style={{ margin: "0 auto var(--space-4)" }} />
           <p style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)' }}>No projects yet</p>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>Document your first real project to start building grounded content.</p>
           <button className="btn btn-primary" onClick={openCreate}>Add Your First Project</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 'var(--space-4)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: 'var(--space-4)' }}>
           {filteredProjects.map(project => (
             <div key={project.id} className="card" style={{ cursor: 'pointer', transition: 'transform 0.15s ease, box-shadow 0.15s ease' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-lg)'; }}
@@ -263,10 +258,10 @@ export default function ProjectsPage() {
                 </div>
                 <div style={{ display: 'flex', gap: 'var(--space-1)', flexShrink: 0 }}>
                   <button className="btn btn-ghost" style={{ padding: 'var(--space-1)' }} onClick={() => openEdit(project)} title="Edit">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                    <Pencil size={14} strokeWidth={2} />
                   </button>
                   <button className="btn btn-ghost" style={{ padding: 'var(--space-1)', color: 'var(--color-error)' }} onClick={() => handleArchive(project.id)} title="Archive">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /></svg>
+                    <Trash2 size={14} strokeWidth={2} />
                   </button>
                 </div>
               </div>
@@ -336,10 +331,7 @@ export default function ProjectsPage() {
                   <button className="btn btn-ghost" style={{ fontSize: 'var(--font-size-xs)', padding: 'var(--space-1) var(--space-2)' }}
                     onClick={() => setExpandedId(expandedId === project.id ? null : project.id)}>
                     {project.milestones.filter(m => m.isCompleted).length}/{project.milestones.length} milestones
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                      style={{ transform: expandedId === project.id ? 'rotate(180deg)' : '', transition: 'transform 0.2s' }}>
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
+                    <ChevronDown size={14} strokeWidth={2} style={{ transform: expandedId === project.id ? "rotate(180deg)" : "", transition: "transform 0.2s" }} />
                   </button>
                 )}
               </div>
@@ -355,7 +347,7 @@ export default function ProjectsPage() {
                         background: m.isCompleted ? '#16A34A' : 'transparent',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        {m.isCompleted && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
+                        {m.isCompleted && <Check size={10} strokeWidth={3} color="white" />}
                       </div>
                       <span style={{ color: m.isCompleted ? 'var(--color-text-muted)' : 'var(--color-text-secondary)', textDecoration: m.isCompleted ? 'line-through' : 'none' }}>
                         {m.title}
@@ -385,7 +377,7 @@ export default function ProjectsPage() {
                 {editProject ? 'Edit Project' : 'New Project'}
               </h3>
               <button className="btn btn-ghost" onClick={() => setShowModal(false)} style={{ padding: 'var(--space-1)' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                <X size={20} strokeWidth={2} />
               </button>
             </div>
 

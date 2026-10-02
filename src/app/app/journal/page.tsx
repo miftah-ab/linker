@@ -4,6 +4,7 @@
 // LINKER - Project Journal
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { Lock, Users, Sparkles, Plus, Search, NotebookPen, Pencil, Trash2, X } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -27,15 +28,15 @@ interface JournalEntry {
 const PRIVACY_STYLES: Record<string, { bg: string; color: string; label: string; icon: React.ReactNode }> = {
   PRIVATE: {
     bg: '#DC262618', color: '#DC2626', label: 'Private',
-    icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+    icon: <Lock size={12} strokeWidth={2} />,
   },
   INTERNAL: {
     bg: '#D9780618', color: '#D97806', label: 'Internal',
-    icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+    icon: <Users size={12} strokeWidth={2} />,
   },
   CONTENT_ELIGIBLE: {
     bg: '#2563EB18', color: '#2563EB', label: 'Content Eligible',
-    icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+    icon: <Sparkles size={12} strokeWidth={2} />,
   },
 };
 
@@ -132,9 +133,7 @@ export default function JournalPage() {
           </p>
         </div>
         <button id="create-journal-btn" className="btn btn-primary" onClick={openCreate}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
+          <Plus size={16} strokeWidth={2.5} />
           New Entry
         </button>
       </div>
@@ -168,9 +167,7 @@ export default function JournalPage() {
         </div>
       ) : entries.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 'var(--space-16) var(--space-4)' }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="1.5" style={{ margin: '0 auto var(--space-4)' }}>
-            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-          </svg>
+          <NotebookPen size={48} strokeWidth={1.5} color="var(--color-text-muted)" style={{ margin: "0 auto var(--space-4)" }} />
           <p style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)' }}>No journal entries</p>
           <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>Start documenting what you build, learn, and observe. These become the source for authentic content.</p>
           <button className="btn btn-primary" onClick={openCreate}>Write Your First Entry</button>
@@ -202,7 +199,7 @@ export default function JournalPage() {
                           fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-semibold)',
                           background: '#16A34A18', color: '#16A34A',
                         }}>
-                          💡 Content Opportunity
+                          Content Opportunity
                         </span>
                       )}
                       {entry.project && (
@@ -235,10 +232,10 @@ export default function JournalPage() {
                     </span>
                     <div style={{ display: 'flex', gap: 'var(--space-1)' }} onClick={e => e.stopPropagation()}>
                       <button className="btn btn-ghost" style={{ padding: 'var(--space-1)' }} onClick={() => openEdit(entry)} title="Edit">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        <Pencil size={14} strokeWidth={2} />
                       </button>
                       <button className="btn btn-ghost" style={{ padding: 'var(--space-1)', color: 'var(--color-error)' }} onClick={() => handleDelete(entry.id)} title="Delete">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                        <Trash2 size={14} strokeWidth={2} />
                       </button>
                     </div>
                   </div>
@@ -271,7 +268,7 @@ export default function JournalPage() {
               <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                 <button className="btn btn-secondary" style={{ padding: 'var(--space-1_5) var(--space-3)', fontSize: 'var(--font-size-xs)' }} onClick={() => { setViewEntry(null); openEdit(viewEntry); }}>Edit</button>
                 <button className="btn btn-ghost" style={{ padding: 'var(--space-1)' }} onClick={() => setViewEntry(null)}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <X size={18} strokeWidth={2} />
                 </button>
               </div>
             </div>
@@ -319,7 +316,7 @@ export default function JournalPage() {
                 {editEntry ? 'Edit Entry' : 'New Journal Entry'}
               </h3>
               <button className="btn btn-ghost" onClick={() => setShowModal(false)} style={{ padding: 'var(--space-1)' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <X size={20} strokeWidth={2} />
               </button>
             </div>
 

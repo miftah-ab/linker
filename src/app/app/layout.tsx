@@ -52,6 +52,8 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
         <Sidebar
           userEmail={session?.user?.email || undefined}
           userName={session?.user?.name || undefined}
+          isOpen={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
         />
       </div>
 

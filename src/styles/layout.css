@@ -398,6 +398,7 @@
   }
 
   /* Wrapper div gets sidebar-open class — pass it down to the sidebar child */
+  .sidebar.sidebar-open,
   .sidebar-open .sidebar {
     transform: translateX(0);
   }

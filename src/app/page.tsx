@@ -2,7 +2,21 @@
 // LINKER — Landing Page
 
 import Link from 'next/link';
-import { LinkerWordmark, LinkerMark } from '@/components/Logo';
+import { LinkerMark } from '@/components/Logo';
+import {
+  ShieldCheck,
+  NotebookPen,
+  Sparkles,
+  BookOpen,
+  CalendarDays,
+  Share2,
+  CheckCircle2,
+  ArrowRight,
+  Shield,
+  FileCheck,
+  Lock,
+  BarChart3,
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Linker — Your professional presence, intentionally built',
@@ -10,7 +24,6 @@ export const metadata = {
     'Linker turns your real projects, knowledge, and expertise into credible LinkedIn content. Grounded AI drafting with mandatory human review.',
 };
 
-// Feature icon helper
 function FeatureIcon({ children }: { children: React.ReactNode }) {
   return (
     <div className="feature-icon" aria-hidden="true">
@@ -19,28 +32,9 @@ function FeatureIcon({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Trust check icon
-function CheckIcon() {
-  return (
-    <svg
-      className="trust-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
 export default function HomePage() {
   return (
     <div className="landing-root">
-
       {/* ── Navigation ── */}
       <header className="landing-nav">
         <div className="landing-nav-inner">
@@ -52,8 +46,9 @@ export default function HomePage() {
             <Link href="/auth/signin" className="btn btn-ghost btn-sm">
               Sign in
             </Link>
-            <Link href="/auth/signup" className="btn btn-primary btn-sm">
-              Get started
+            <Link href="/auth/signup" className="btn btn-primary btn-sm" style={{ gap: 6 }}>
+              <span>Get started</span>
+              <ArrowRight size={14} strokeWidth={2} />
             </Link>
           </nav>
         </div>
@@ -62,6 +57,7 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <section className="hero" aria-labelledby="hero-heading">
         <div className="hero-eyebrow">
+          <Shield size={12} strokeWidth={2.5} style={{ marginRight: 6 }} />
           LinkedIn Presence Engine
         </div>
         <h1 className="hero-title" id="hero-heading">
@@ -73,8 +69,9 @@ export default function HomePage() {
           into credible LinkedIn content — drafted by AI, always reviewed by you.
         </p>
         <div className="hero-actions">
-          <Link href="/auth/signup" className="btn btn-primary btn-lg">
-            Start building your presence
+          <Link href="/auth/signup" className="btn btn-primary btn-lg" style={{ gap: 8 }}>
+            <span>Start building your presence</span>
+            <ArrowRight size={16} strokeWidth={2} />
           </Link>
           <Link href="/auth/signin" className="btn btn-secondary btn-lg">
             Open workspace
@@ -118,7 +115,7 @@ export default function HomePage() {
                 title: 'Draft, Review & Publish',
                 desc: 'AI generates a contextual first draft citing your knowledge entries. You review, edit, and approve — then publish directly via the official LinkedIn API.',
               },
-            ].map(step => (
+            ].map((step) => (
               <div className="workflow-step" key={step.n}>
                 <div className="workflow-step-number" aria-hidden="true">{step.n}</div>
                 <h3 className="workflow-step-title">{step.title}</h3>
@@ -144,9 +141,7 @@ export default function HomePage() {
           <div className="feature-grid">
             <div className="feature-card">
               <FeatureIcon>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                </svg>
+                <ShieldCheck size={22} strokeWidth={1.75} />
               </FeatureIcon>
               <h3 className="feature-card-title">Evidence-Based Identity</h3>
               <p className="feature-card-desc">
@@ -156,9 +151,7 @@ export default function HomePage() {
 
             <div className="feature-card">
               <FeatureIcon>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="9" y1="13" x2="15" y2="13" /><line x1="9" y1="17" x2="12" y2="17" />
-                </svg>
+                <NotebookPen size={22} strokeWidth={1.75} />
               </FeatureIcon>
               <h3 className="feature-card-title">Work Journal</h3>
               <p className="feature-card-desc">
@@ -168,9 +161,7 @@ export default function HomePage() {
 
             <div className="feature-card">
               <FeatureIcon>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                </svg>
+                <Sparkles size={22} strokeWidth={1.75} />
               </FeatureIcon>
               <h3 className="feature-card-title">Quality Review Engine</h3>
               <p className="feature-card-desc">
@@ -180,9 +171,7 @@ export default function HomePage() {
 
             <div className="feature-card">
               <FeatureIcon>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                </svg>
+                <BookOpen size={22} strokeWidth={1.75} />
               </FeatureIcon>
               <h3 className="feature-card-title">Grounded Knowledge Base</h3>
               <p className="feature-card-desc">
@@ -192,9 +181,7 @@ export default function HomePage() {
 
             <div className="feature-card">
               <FeatureIcon>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
+                <CalendarDays size={22} strokeWidth={1.75} />
               </FeatureIcon>
               <h3 className="feature-card-title">Editorial Calendar</h3>
               <p className="feature-card-desc">
@@ -204,9 +191,7 @@ export default function HomePage() {
 
             <div className="feature-card">
               <FeatureIcon>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" />
-                </svg>
+                <Share2 size={22} strokeWidth={1.75} />
               </FeatureIcon>
               <h3 className="feature-card-title">Official LinkedIn API</h3>
               <p className="feature-card-desc">
@@ -228,24 +213,28 @@ export default function HomePage() {
           <div className="trust-grid">
             {[
               {
+                icon: <FileCheck size={20} strokeWidth={2} color="var(--color-primary)" />,
                 title: 'No invented facts',
                 desc: 'AI is explicitly instructed to refuse fabricating statistics, achievements, or project results not found in your workspace.',
               },
               {
+                icon: <ShieldCheck size={20} strokeWidth={2} color="var(--color-primary)" />,
                 title: 'Mandatory human approval',
                 desc: 'Nothing publishes without your explicit review and sign-off. Every draft goes through an approval workflow.',
               },
               {
+                icon: <BarChart3 size={20} strokeWidth={2} color="var(--color-primary)" />,
                 title: 'Honest analytics',
                 desc: 'No vanity scores or predictive projections. Real post history and actual engagement data from the LinkedIn API.',
               },
               {
+                icon: <Lock size={20} strokeWidth={2} color="var(--color-primary)" />,
                 title: 'Your data, your control',
                 desc: 'Journals, unreleased projects, and private knowledge are never used to train public models or shared externally.',
               },
-            ].map(item => (
+            ].map((item) => (
               <div className="trust-item" key={item.title}>
-                <CheckIcon />
+                <div style={{ flexShrink: 0, marginTop: 2 }}>{item.icon}</div>
                 <div>
                   <h3 className="trust-item-title">{item.title}</h3>
                   <p className="trust-item-desc">{item.desc}</p>
@@ -269,8 +258,9 @@ export default function HomePage() {
             Build an enduring professional presence grounded in your actual work — not AI-generated noise.
           </p>
           <div className="hero-actions">
-            <Link href="/auth/signup" className="btn btn-primary btn-lg">
-              Create your account
+            <Link href="/auth/signup" className="btn btn-primary btn-lg" style={{ gap: 8 }}>
+              <span>Create your account</span>
+              <ArrowRight size={16} strokeWidth={2} />
             </Link>
             <Link href="/auth/signin" className="btn btn-secondary btn-lg">
               Sign in
@@ -294,7 +284,6 @@ export default function HomePage() {
           </nav>
         </div>
       </footer>
-
     </div>
   );
 }

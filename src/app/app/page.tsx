@@ -265,9 +265,7 @@ export default function DashboardPage() {
               </div>
             ) : recentIdeas.length === 0 ? (
               <div className="empty-state" style={{ padding: 'var(--space-10) var(--space-5)' }}>
-                <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                </svg>
+                <Lightbulb size={36} strokeWidth={1.5} color="var(--color-text-muted)" style={{ margin: "0 auto var(--space-3)" }} />
                 <p className="empty-state-title">No ideas yet</p>
                 <p className="empty-state-description">Ideas give Linker context for writing relevant content.</p>
                 <Link href="/app/ideas" className="btn btn-primary btn-sm" style={{ marginTop: 'var(--space-2)' }}>Capture first idea</Link>
@@ -334,9 +332,7 @@ export default function DashboardPage() {
               </div>
             ) : recentDrafts.length === 0 ? (
               <div className="empty-state" style={{ padding: 'var(--space-10) var(--space-5)' }}>
-                <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
+                <PenLine size={36} strokeWidth={1.5} color="var(--color-text-muted)" style={{ margin: "0 auto var(--space-3)" }} />
                 <p className="empty-state-title">No drafts yet</p>
                 <p className="empty-state-description">Open Content Studio to generate your first AI-assisted draft.</p>
                 <Link href="/app/studio" className="btn btn-primary btn-sm" style={{ marginTop: 'var(--space-2)' }}>Open Studio</Link>

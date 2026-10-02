@@ -16,6 +16,23 @@ function SignInContent() {
 
   const [loadingProvider, setLoadingProvider] = useState<'linkedin_oidc' | 'google' | null>(null);
   const [authError, setAuthError] = useState<string | null>(errorParam);
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const h = window.location.hostname;
+      setIsLocalhost(h === 'localhost' || h === '127.0.0.1');
+    }
+  }, []);
+
+  async function handleDevLogin() {
+    try {
+      await fetch('/api/auth/dev-login', { method: 'POST' });
+      window.location.href = callbackUrl;
+    } catch {
+      window.location.href = '/app';
+    }
+  }
 
   async function handleOAuthSignIn(provider: 'linkedin_oidc' | 'google') {
     setLoadingProvider(provider);
@@ -172,6 +189,58 @@ function SignInContent() {
               )}
               {loadingProvider === 'google' ? 'Connecting to Google...' : 'Continue with Google'}
             </button>
+
+            {/* Localhost Dev Quick Access */}
+            {isLocalhost && (
+              <div
+                style={{
+                  marginTop: 'var(--space-2)',
+                  paddingTop: 'var(--space-4)',
+                  borderTop: '1px dashed var(--color-border)',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={handleDevLogin}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 'var(--space-2)',
+                    width: '100%',
+                    padding: 'var(--space-2_5) var(--space-4)',
+                    backgroundColor: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+                    color: 'var(--color-primary)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px dashed var(--color-primary)',
+                    fontSize: 'var(--font-size-xs)',
+                    fontWeight: 'var(--font-weight-semibold)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.backgroundColor =
+                      'color-mix(in srgb, var(--color-primary) 18%, transparent)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.backgroundColor =
+                      'color-mix(in srgb, var(--color-primary) 10%, transparent)';
+                  }}
+                >
+                  ⚡ Enter Dashboard (Dev Mode Bypass)
+                </button>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--color-text-muted)',
+                    textAlign: 'center',
+                    marginTop: 'var(--space-1_5)',
+                  }}
+                >
+                  Local development only &bull; Skips OAuth
+                </div>
+              </div>
+            )}
           </div>
 
           <div

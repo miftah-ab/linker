@@ -23,6 +23,24 @@ export function useSession() {
   useEffect(() => {
     const supabase = createClient();
 
+    // Check if dev session cookie exists (localhost dev bypass)
+    const isDevSession =
+      typeof document !== 'undefined' &&
+      document.cookie.includes('dev_session=true');
+
+    if (isDevSession) {
+      setUser({
+        id: 'dev-user-local',
+        email: 'dev@linker.local',
+        user_metadata: { name: 'Local Developer', full_name: 'Local Developer' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      } as unknown as User);
+      setStatus('authenticated');
+      return;
+    }
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       setStatus(user ? 'authenticated' : 'unauthenticated');
@@ -58,6 +76,10 @@ export function useSession() {
 }
 
 export async function signOut({ callbackUrl = '/auth/signin' } = {}) {
+  // Clear dev session cookie if present
+  if (typeof document !== 'undefined') {
+    document.cookie = 'dev_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  }
   const supabase = createClient();
   await supabase.auth.signOut();
   window.location.href = callbackUrl;

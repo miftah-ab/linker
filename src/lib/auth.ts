@@ -4,6 +4,7 @@
 
 import { createClient } from './supabase/server';
 import { prisma } from './prisma';
+import { cookies } from 'next/headers';
 
 export interface AuthSession {
   user: {
@@ -16,6 +17,34 @@ export interface AuthSession {
 
 export async function auth(): Promise<AuthSession | null> {
   try {
+    const cookieStore = await cookies();
+    if (cookieStore.get('dev_session')?.value === 'true') {
+      try {
+        const devUser = await prisma.linkerUser.findFirst();
+        if (devUser) {
+          return {
+            user: {
+              id: devUser.id,
+              email: devUser.email,
+              name: devUser.name || 'Local Developer',
+              image: devUser.image,
+            },
+          };
+        }
+      } catch {
+        // Fallback if local DB is unreachable
+      }
+
+      return {
+        user: {
+          id: 'dev-user-local',
+          email: 'dev@linker.local',
+          name: 'Local Developer',
+          image: null,
+        },
+      };
+    }
+
     const supabase = await createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
 

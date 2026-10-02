@@ -4,6 +4,7 @@
 // LINKER - Content Studio
 
 import React, { useEffect, useState, useCallback, Suspense } from 'react';
+import { Sparkles, PenLine, Save, ArrowLeft, AlertTriangle, CheckCircle2, Share2, Send, RefreshCw, FileText } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
 interface Idea {
@@ -175,9 +176,7 @@ function StudioContent() {
           </div>
         ) : drafts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-16)' }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="1.5" style={{ margin: '0 auto var(--space-4)' }}>
-              <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
+            <PenLine size={48} strokeWidth={1.5} color="var(--color-text-muted)" style={{ margin: "0 auto var(--space-4)" }} />
             <p style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-2)' }}>No drafts yet</p>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: 'var(--space-6)' }}>Create your first draft from an idea or start writing directly.</p>
             <button className="btn btn-primary" onClick={() => setActiveView('editor')}>Open Studio</button>
@@ -271,7 +270,7 @@ function StudioContent() {
                       <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                       Generating…
                     </span>
-                  ) : '✨ Generate Draft'}
+                  ) : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Sparkles size={15} strokeWidth={2} /> Generate Draft</span>}
                 </button>
               </div>
             </div>
@@ -279,7 +278,7 @@ function StudioContent() {
             {/* Warnings & Context */}
             {genError && (
               <div style={{ padding: 'var(--space-3)', background: 'var(--color-error-bg)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid var(--color-error)' }}>
-                <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-error)', marginBottom: 'var(--space-1)' }}>⚠ Generation Failed</div>
+                <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-error)', marginBottom: 'var(--space-1)' }}>Generation Failed</div>
                 <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>{genError}</div>
               </div>
             )}
@@ -293,7 +292,7 @@ function StudioContent() {
 
             {genWarnings.length > 0 && (
               <div style={{ padding: 'var(--space-3)', background: 'var(--color-warning-bg)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid var(--color-warning)' }}>
-                <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-warning)', marginBottom: 'var(--space-2)' }}>⚠ Warnings</div>
+                <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-warning)', marginBottom: 'var(--space-2)' }}>Review Warnings</div>
                 {genWarnings.map((w, i) => <div key={i} style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-1)' }}>• {w}</div>)}
               </div>
             )}
@@ -347,9 +346,9 @@ function StudioContent() {
             </div>
 
             <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end' }}>
-              <button className="btn btn-secondary" onClick={() => setActiveView('list')}>← Back to Drafts</button>
+              <button className="btn btn-secondary" onClick={() => setActiveView('list')}>Back to Drafts</button>
               <button id="save-draft-btn" className="btn btn-primary" onClick={handleSaveDraft} disabled={saving || !editorContent.trim()}>
-                {saving ? 'Saving…' : selectedDraft ? '💾 Update Draft' : '💾 Save Draft'}
+                {saving ? 'Saving…' : selectedDraft ? 'Update Draft' : 'Save Draft'}
               </button>
             </div>
 

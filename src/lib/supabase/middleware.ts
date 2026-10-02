@@ -48,8 +48,14 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  const isDevSession = request.cookies.get('dev_session')?.value === 'true';
+  const isLocal =
+    request.nextUrl.hostname === 'localhost' ||
+    request.nextUrl.hostname === '127.0.0.1' ||
+    process.env.NODE_ENV === 'development';
+
   // Protect /app/* routes
-  if (pathname.startsWith('/app') && !user) {
+  if (pathname.startsWith('/app') && !user && !(isDevSession && isLocal)) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/signin';
     url.searchParams.set('callbackUrl', pathname);

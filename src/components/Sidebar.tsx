@@ -25,6 +25,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react';
 
 interface NavItem {
@@ -41,7 +42,17 @@ interface NavSection {
 const ICON_SIZE = 16;
 const ICON_PROPS = { size: ICON_SIZE, strokeWidth: 1.75 };
 
-export function Sidebar({ userEmail, userName }: { userEmail?: string; userName?: string }) {
+export function Sidebar({
+  userEmail,
+  userName,
+  isOpen = false,
+  onClose,
+}: {
+  userEmail?: string;
+  userName?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+}) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -84,25 +95,45 @@ export function Sidebar({ userEmail, userName }: { userEmail?: string; userName?
 
   return (
     <aside
-      className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}
+      className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''} ${isOpen ? 'sidebar-open' : ''}`}
       aria-label="Main navigation"
     >
       {/* Brand */}
       <div className="sidebar-brand">
-        <Link href="/app" className="sidebar-brand-link" aria-label="Linker home">
+        <Link
+          href="/app"
+          className="sidebar-brand-link"
+          aria-label="Linker home"
+          onClick={() => onClose?.()}
+        >
           <LinkerMark size={26} />
           <span className="sidebar-wordmark">Linker</span>
         </Link>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="sidebar-toggle"
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {collapsed
-            ? <ChevronRight size={14} strokeWidth={2} />
-            : <ChevronLeft size={14} strokeWidth={2} />
-          }
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+          {/* Desktop Collapse Toggle */}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="sidebar-toggle hide-mobile"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed ? (
+              <ChevronRight size={14} strokeWidth={2} />
+            ) : (
+              <ChevronLeft size={14} strokeWidth={2} />
+            )}
+          </button>
+          {/* Mobile Close Button */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="btn btn-ghost btn-icon-sm show-mobile"
+              aria-label="Close menu"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              <X size={18} strokeWidth={2} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -120,6 +151,7 @@ export function Sidebar({ userEmail, userName }: { userEmail?: string; userName?
                   href={item.href}
                   className={`sidebar-nav-item ${isActive ? 'sidebar-nav-item-active' : ''}`}
                   title={collapsed ? item.label : undefined}
+                  onClick={() => onClose?.()}
                 >
                   <span className="sidebar-nav-icon">{item.icon}</span>
                   <span className="sidebar-nav-label">{item.label}</span>
@@ -155,25 +187,29 @@ export function Sidebar({ userEmail, userName }: { userEmail?: string; userName?
 
           {!collapsed && (
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{
-                fontSize: 'var(--font-size-xs)',
-                fontWeight: 'var(--font-weight-semibold)',
-                color: 'var(--color-text-primary)',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                letterSpacing: '-0.01em',
-              }}>
-                {userName || 'User'}
-              </div>
-              {userEmail && (
-                <div style={{
-                  fontSize: '11px',
-                  color: 'var(--color-text-muted)',
+              <div
+                style={{
+                  fontSize: 'var(--font-size-xs)',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  color: 'var(--color-text-primary)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                }}>
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {userName || 'User'}
+              </div>
+              {userEmail && (
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: 'var(--color-text-muted)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
                   {userEmail}
                 </div>
               )}
