@@ -1,6 +1,6 @@
 'use client';
 
-// src/app/app/page.tsx - LINKER Dashboard / Overview
+// src/app/app/page.tsx — LINKER Dashboard Overview
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -33,17 +33,55 @@ interface RecentDraft {
   updatedAt: string;
 }
 
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+  SAVED:       { label: 'Saved',       color: '#64748B', bg: 'var(--color-surface-muted)' },
+  IN_REVIEW:   { label: 'In Review',   color: '#D97706', bg: '#FFFBEB' },
+  APPROVED:    { label: 'Approved',    color: '#16A34A', bg: '#F0FDF4' },
+  CONVERTED:   { label: 'Converted',   color: '#2563EB', bg: '#EFF6FF' },
+  DRAFT:       { label: 'Draft',       color: '#64748B', bg: 'var(--color-surface-muted)' },
+  PUBLISHED:   { label: 'Published',   color: '#7C3AED', bg: '#F5F3FF' },
+  SCHEDULED:   { label: 'Scheduled',   color: '#2563EB', bg: '#EFF6FF' },
+};
+
+// SVG icons for quick actions — no emojis
+const QuickActionIcon = {
+  journal: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="9" y1="13" x2="15" y2="13" /><line x1="9" y1="17" x2="12" y2="17" />
+    </svg>
+  ),
+  idea: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+    </svg>
+  ),
+  draft: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+    </svg>
+  ),
+  project: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
+};
+
 const QUICK_ACTIONS = [
-  { href: '/app/journal', label: 'New Journal Entry', icon: '✏️', description: 'Document what you built today', color: '#7C3AED' },
-  { href: '/app/ideas', label: 'Capture Idea', icon: '💡', description: 'Log a content idea while it is fresh', color: '#D97706' },
-  { href: '/app/studio', label: 'Write a Draft', icon: '📝', description: 'Open Content Studio and create', color: '#2563EB' },
-  { href: '/app/projects', label: 'Add Project', icon: '📁', description: 'Document a real project', color: '#16A34A' },
+  { href: '/app/journal',  label: 'New Journal Entry', description: 'Document work as it happens', icon: QuickActionIcon.journal, accent: 'var(--color-accent-violet)' },
+  { href: '/app/ideas',    label: 'Capture Idea',      description: 'Log a content idea',         icon: QuickActionIcon.idea,    accent: 'var(--color-warning)' },
+  { href: '/app/studio',   label: 'Write a Draft',     description: 'Open Content Studio',        icon: QuickActionIcon.draft,   accent: 'var(--color-primary)' },
+  { href: '/app/projects', label: 'Add Project',       description: 'Document a real project',    icon: QuickActionIcon.project, accent: 'var(--color-success)' },
 ];
 
-const STATUS_COLORS: Record<string, string> = {
-  SAVED: '#64748B', IN_REVIEW: '#D97806', APPROVED: '#16A34A',
-  CONVERTED: '#2563EB', DRAFT: '#64748B', PUBLISHED: '#7C3AED',
-};
+function SkeletonBlock({ height = 80 }: { height?: number }) {
+  return (
+    <div
+      className="skeleton"
+      style={{ height, borderRadius: 'var(--radius-md)' }}
+    />
+  );
+}
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -60,11 +98,11 @@ export default function DashboardPage() {
       fetch('/api/studio').then(r => r.json()),
       fetch('/api/knowledge').then(r => r.json()),
     ]).then(([proj, jour, ideasData, draftsData, know]) => {
-      const projects = proj.projects || [];
-      const journal = jour.entries || [];
-      const ideas = ideasData.ideas || [];
-      const drafts = draftsData.drafts || [];
-      const knowledge = know.entries || [];
+      const projects  = proj.projects  || [];
+      const journal   = jour.entries   || [];
+      const ideas     = ideasData.ideas || [];
+      const drafts    = draftsData.drafts || [];
+      const knowledge = know.entries   || [];
 
       setStats({
         projects: projects.length,
@@ -75,72 +113,152 @@ export default function DashboardPage() {
         knowledgeEntries: knowledge.length,
         contentEligibleEntries: journal.filter((j: { hasContentOpportunity: boolean }) => j.hasContentOpportunity).length,
       });
-      setRecentIdeas(ideas.slice(0, 5));
-      setRecentDrafts(drafts.slice(0, 3));
+      setRecentIdeas(ideas.slice(0, 6));
+      setRecentDrafts(drafts.slice(0, 4));
     }).catch(() => setStats(null)).finally(() => setLoading(false));
   }, []);
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const firstName = session?.user?.name?.split(' ')[0] || 'there';
+  const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+  const firstName = session?.user?.name?.split(' ')[0] || '';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
-      {/* ── Hero Greeting ── */}
-      <div style={{ background: 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent-violet) 100%)', borderRadius: 'var(--radius-2xl)', padding: 'var(--space-8)', color: 'white', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 70% 50%, rgba(255,255,255,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
-        <div style={{ position: 'relative' }}>
-          <p style={{ fontSize: 'var(--font-size-sm)', opacity: 0.8, marginBottom: 'var(--space-2)' }}>Linker Workspace</p>
-          <h1 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: 'var(--font-weight-bold)', marginBottom: 'var(--space-2)' }}>
-            {greeting}, {firstName} 👋
-          </h1>
-          <p style={{ fontSize: 'var(--font-size-base)', opacity: 0.85, maxWidth: 500 }}>
-            Make your professional presence intentional. Document what you build, capture insights, and create grounded content.
-          </p>
-        </div>
+
+      {/* ── Page header ── */}
+      <div>
+        <h1 className="page-title">
+          {firstName ? `Good ${timeOfDay}, ${firstName}` : 'Workspace Overview'}
+        </h1>
+        <p className="page-description" style={{ marginTop: 'var(--space-1)' }}>
+          Your professional content workspace. Document work, capture ideas, and publish intentionally.
+        </p>
       </div>
 
-      {/* ── Stats Grid ── */}
+      {/* ── Stats row ── */}
       {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 'var(--space-3)' }}>
-          {[1,2,3,4,5,6].map(i => <div key={i} className="card" style={{ height: 80, background: 'var(--color-surface-muted)' }} />)}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'var(--space-3)' }}>
+          {[1, 2, 3, 4, 5, 6].map(i => <SkeletonBlock key={i} height={72} />)}
         </div>
-      ) : stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 'var(--space-3)' }}>
+      ) : stats ? (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(6, 1fr)',
+          gap: 'var(--space-3)',
+        }}
+          className="stats-overview"
+        >
           {[
-            { label: 'Projects', value: stats.projects, href: '/app/projects', color: '#16A34A', icon: '📁' },
-            { label: 'Journal Entries', value: stats.journalEntries, href: '/app/journal', color: '#7C3AED', icon: '✏️' },
-            { label: 'Content Ideas', value: stats.ideas, href: '/app/ideas', color: '#D97806', icon: '💡' },
-            { label: 'Drafts', value: stats.drafts, href: '/app/studio', color: '#2563EB', icon: '📝' },
-            { label: 'Approved', value: stats.approvedDrafts, href: '/app/studio', color: '#16A34A', icon: '✓' },
-            { label: 'Knowledge', value: stats.knowledgeEntries, href: '/app/knowledge', color: '#06B6D4', icon: '🧠' },
+            { label: 'Projects',      value: stats.projects,        href: '/app/projects' },
+            { label: 'Journal',       value: stats.journalEntries,  href: '/app/journal' },
+            { label: 'Ideas',         value: stats.ideas,           href: '/app/ideas' },
+            { label: 'Drafts',        value: stats.drafts,          href: '/app/studio' },
+            { label: 'Approved',      value: stats.approvedDrafts,  href: '/app/studio' },
+            { label: 'Knowledge',     value: stats.knowledgeEntries,href: '/app/knowledge' },
           ].map(stat => (
             <Link key={stat.label} href={stat.href} style={{ textDecoration: 'none' }}>
-              <div className="card" style={{ textAlign: 'center', transition: 'transform 0.15s, box-shadow 0.15s', cursor: 'pointer' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-lg)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = ''; }}>
-                <div style={{ fontSize: 'var(--font-size-xl)', marginBottom: 'var(--space-1)' }}>{stat.icon}</div>
-                <div style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: stat.color }}>{stat.value}</div>
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>{stat.label}</div>
+              <div
+                style={{
+                  padding: 'var(--space-4)',
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-strong)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '';
+                }}
+              >
+                <div style={{
+                  fontSize: 'var(--font-size-2xl)',
+                  fontWeight: 'var(--font-weight-bold)',
+                  color: 'var(--color-text-primary)',
+                  letterSpacing: '-0.04em',
+                  lineHeight: 1,
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  {stat.value}
+                </div>
+                <div style={{
+                  fontSize: 'var(--font-size-xs)',
+                  color: 'var(--color-text-muted)',
+                  fontWeight: 'var(--font-weight-medium)',
+                  letterSpacing: '0.02em',
+                }}>
+                  {stat.label}
+                </div>
               </div>
             </Link>
           ))}
         </div>
-      )}
+      ) : null}
 
-      {/* ── Quick Actions ── */}
+      {/* ── Quick actions ── */}
       <div>
-        <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-3)' }}>Quick Actions</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 'var(--space-3)' }}>
+        <div className="section-header">
+          <span className="section-title">Quick Actions</span>
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 'var(--space-3)',
+        }}
+          className="quick-actions-grid"
+        >
           {QUICK_ACTIONS.map(action => (
             <Link key={action.href} href={action.href} style={{ textDecoration: 'none' }}>
-              <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', cursor: 'pointer', transition: 'transform 0.15s, box-shadow 0.15s', borderLeft: `3px solid ${action.color}` }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-md)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = ''; }}>
-                <div style={{ fontSize: '1.5rem', flexShrink: 0 }}>{action.icon}</div>
+              <div
+                style={{
+                  padding: 'var(--space-4)',
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--space-3)',
+                  cursor: 'pointer',
+                  transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border-strong)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '';
+                }}
+              >
+                <div style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 'var(--radius-md)',
+                  background: `color-mix(in srgb, ${action.accent} 12%, transparent)`,
+                  color: action.accent,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {action.icon}
+                </div>
                 <div>
-                  <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)' }}>{action.label}</div>
-                  <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>{action.description}</div>
+                  <div style={{
+                    fontSize: 'var(--font-size-sm)',
+                    fontWeight: 'var(--font-weight-semibold)',
+                    color: 'var(--color-text-primary)',
+                    letterSpacing: '-0.01em',
+                    marginBottom: 'var(--space-0_5)',
+                  }}>
+                    {action.label}
+                  </div>
+                  <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+                    {action.description}
+                  </div>
                 </div>
               </div>
             </Link>
@@ -148,79 +266,171 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Recent Activity ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)', alignItems: 'start' }}>
+      {/* ── Recent activity: ideas + drafts ── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 'var(--space-6)',
+        alignItems: 'start',
+      }}
+        className="activity-grid"
+      >
         {/* Recent Ideas */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
-            <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)' }}>Recent Ideas</h3>
-            <Link href="/app/ideas" style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-primary)', textDecoration: 'none' }}>View all →</Link>
+          <div className="section-header">
+            <span className="section-title">Recent Ideas</span>
+            <Link href="/app/ideas" style={{
+              fontSize: 'var(--font-size-xs)',
+              color: 'var(--color-primary)',
+              textDecoration: 'none',
+              fontWeight: 'var(--font-weight-medium)',
+            }}>
+              View all
+            </Link>
           </div>
-          {recentIdeas.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
-              No ideas yet. <Link href="/app/ideas" style={{ color: 'var(--color-primary)' }}>Capture your first →</Link>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-              {recentIdeas.map(idea => (
-                <div key={idea.id} className="card" style={{ padding: 'var(--space-3)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-text-primary)', marginBottom: 'var(--space-1)' }}>{idea.title}</div>
-                      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                        <span style={{ fontSize: 'var(--font-size-xs)', color: STATUS_COLORS[idea.status] || 'var(--color-text-muted)' }}>{idea.status.replace('_', ' ')}</span>
-                        {idea.pillar && <span style={{ fontSize: 'var(--font-size-xs)', color: idea.pillar.color }}>· {idea.pillar.name}</span>}
+
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+          }}>
+            {loading ? (
+              <div style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                {[1, 2, 3].map(i => <SkeletonBlock key={i} height={40} />)}
+              </div>
+            ) : recentIdeas.length === 0 ? (
+              <div className="empty-state" style={{ padding: 'var(--space-10) var(--space-5)' }}>
+                <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <circle cx="12" cy="12" r="3" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+                <p className="empty-state-title">No ideas yet</p>
+                <p className="empty-state-description">Ideas give Linker context for writing relevant content.</p>
+                <Link href="/app/ideas" className="btn btn-primary btn-sm" style={{ marginTop: 'var(--space-2)' }}>Capture first idea</Link>
+              </div>
+            ) : (
+              recentIdeas.map(idea => {
+                const cfg = STATUS_CONFIG[idea.status];
+                return (
+                  <div key={idea.id} className="list-item">
+                    <div className="list-item-content">
+                      <div className="list-item-title">{idea.title}</div>
+                      <div className="list-item-meta">
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1)',
+                          fontSize: 'var(--font-size-xs)', color: cfg?.color || 'var(--color-text-muted)',
+                        }}>
+                          {cfg?.label || idea.status}
+                        </span>
+                        {idea.pillar && (
+                          <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+                            · {idea.pillar.name}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>P{idea.priority}</span>
+                    <div style={{
+                      fontSize: 'var(--font-size-xs)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      color: 'var(--color-text-muted)',
+                      flexShrink: 0,
+                    }}>
+                      P{idea.priority}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
 
         {/* Recent Drafts */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
-            <h3 style={{ fontSize: 'var(--font-size-base)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-text-primary)' }}>Recent Drafts</h3>
-            <Link href="/app/studio" style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-primary)', textDecoration: 'none' }}>View all →</Link>
+          <div className="section-header">
+            <span className="section-title">Recent Drafts</span>
+            <Link href="/app/studio" style={{
+              fontSize: 'var(--font-size-xs)',
+              color: 'var(--color-primary)',
+              textDecoration: 'none',
+              fontWeight: 'var(--font-weight-medium)',
+            }}>
+              View all
+            </Link>
           </div>
-          {recentDrafts.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 'var(--space-6)', color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
-              No drafts yet. <Link href="/app/studio" style={{ color: 'var(--color-primary)' }}>Open Studio →</Link>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-              {recentDrafts.map(draft => (
-                <div key={draft.id} className="card" style={{ padding: 'var(--space-3)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-2)' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 'var(--font-size-xs)', color: STATUS_COLORS[draft.status] || 'var(--color-text-muted)', marginBottom: 'var(--space-1)', fontWeight: 'var(--font-weight-semibold)' }}>
-                        {draft.status.replace('_', ' ')} {draft.idea && `· ${draft.idea.title}`}
+
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+          }}>
+            {loading ? (
+              <div style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                {[1, 2, 3].map(i => <SkeletonBlock key={i} height={60} />)}
+              </div>
+            ) : recentDrafts.length === 0 ? (
+              <div className="empty-state" style={{ padding: 'var(--space-10) var(--space-5)' }}>
+                <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+                <p className="empty-state-title">No drafts yet</p>
+                <p className="empty-state-description">Open Content Studio to generate your first AI-assisted draft.</p>
+                <Link href="/app/studio" className="btn btn-primary btn-sm" style={{ marginTop: 'var(--space-2)' }}>Open Studio</Link>
+              </div>
+            ) : (
+              recentDrafts.map(draft => {
+                const cfg = STATUS_CONFIG[draft.status];
+                return (
+                  <div key={draft.id} className="list-item" style={{ flexDirection: 'column', gap: 'var(--space-2)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <span style={{
+                          fontSize: 'var(--font-size-xs)',
+                          fontWeight: 'var(--font-weight-semibold)',
+                          color: cfg?.color || 'var(--color-text-muted)',
+                          padding: '1px var(--space-2)',
+                          borderRadius: 'var(--radius-sm)',
+                          background: cfg?.bg || 'var(--color-surface-muted)',
+                        }}>
+                          {cfg?.label || draft.status}
+                        </span>
+                        {draft.idea && (
+                          <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>
+                            {draft.idea.title}
+                          </span>
+                        )}
                       </div>
-                      <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
-                        {draft.content.slice(0, 100)}…
-                      </p>
+                      <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                        {new Date(draft.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
                     </div>
-                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', flexShrink: 0 }}>
-                      {new Date(draft.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
+                    <p style={{
+                      fontSize: 'var(--font-size-xs)',
+                      color: 'var(--color-text-secondary)',
+                      lineHeight: 1.5,
+                      margin: 0,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}>
+                      {draft.content.slice(0, 120)}…
+                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
 
-      {/* ── Integrity Note ── */}
-      <div style={{ padding: 'var(--space-4)', background: 'var(--color-surface-muted)', borderRadius: 'var(--radius-lg)', borderLeft: '3px solid var(--color-primary)' }}>
-        <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--color-primary)', marginBottom: 'var(--space-1)' }}>Linker&apos;s Core Principle</div>
-        <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-          All content generated here is grounded in your documented work. The AI will never invent achievements, statistics, or results. You review and approve everything before it becomes public.
-        </div>
+      {/* ── Integrity callout ── */}
+      <div className="callout">
+        <div className="callout-title">Linker&apos;s Core Principle</div>
+        All content generated here is grounded in your documented work. The AI will never invent achievements, statistics, or results.
+        You review and approve everything before it becomes public.
       </div>
+
     </div>
   );
 }

@@ -43,7 +43,7 @@ const PURPOSE_LABELS: Record<string, string> = {
   research: 'Research', progress: 'Progress Update', question: 'Question', lesson: 'Lesson', tradeoff: 'Tradeoff',
 };
 
-const PRIORITIES = ['', '🔴', '🟠', '🟡', '🟢', '🔵'];
+const PRIORITY_LABELS: Record<number, string> = { 1: 'P1', 2: 'P2', 3: 'P3', 4: 'P4', 5: 'P5' };
 
 const EMPTY_FORM = {
   title: '', description: '', pillarId: '', projectId: '', source: 'MANUAL',
@@ -154,20 +154,17 @@ export default function IdeasPage() {
       </div>
 
       {/* ── Filter Bar ── */}
-      <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ position: 'relative', flex: '1 1 220px' }}>
-          <svg style={{ position: 'absolute', left: 'var(--space-3)', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input className="form-input" style={{ paddingLeft: 'var(--space-8)' }} placeholder="Search ideas…" value={search} onChange={e => setSearch(e.target.value)} />
+      <div className="filter-bar">
+        <div className="search-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input className="input" placeholder="Search ideas…" value={search} onChange={e => setSearch(e.target.value)} aria-label="Search ideas" />
         </div>
         {['ALL', 'SAVED', 'IN_REVIEW', 'APPROVED', 'CONVERTED'].map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)} style={{
-            padding: 'var(--space-1_5) var(--space-3)', borderRadius: 'var(--radius-full)',
-            border: `1px solid ${statusFilter === s ? 'var(--color-primary)' : 'var(--color-border)'}`,
-            background: statusFilter === s ? 'var(--color-primary)' : 'var(--color-surface)',
-            color: statusFilter === s ? 'white' : 'var(--color-text-secondary)',
-            fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-medium)',
-            cursor: 'pointer', transition: 'all 0.15s ease',
-          }}>
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`filter-chip ${statusFilter === s ? 'filter-chip-active' : ''}`}
+          >
             {s === 'ALL' ? 'All' : STATUS_CONFIG[s]?.label}
           </button>
         ))}
@@ -203,7 +200,7 @@ export default function IdeasPage() {
                     {idea.pillar && (
                       <span style={{ padding: '2px var(--space-2)', borderRadius: 'var(--radius-full)', fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-semibold)', background: idea.pillar.color + '22', color: idea.pillar.color }}>{idea.pillar.name}</span>
                     )}
-                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>{PRIORITIES[idea.priority]} P{idea.priority}</span>
+                    <span className={`priority-indicator priority-${idea.priority}`}>{PRIORITY_LABELS[idea.priority] || `P${idea.priority}`}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 'var(--space-1)', flexShrink: 0 }}>
                     <button className="btn btn-ghost" style={{ padding: 'var(--space-1)' }} onClick={() => openEdit(idea)} title="Edit">
@@ -241,7 +238,7 @@ export default function IdeasPage() {
                   )}
                   {idea.status === 'IN_REVIEW' && (
                     <button className="btn btn-ghost" style={{ fontSize: 'var(--font-size-xs)', padding: 'var(--space-1) var(--space-2)' }} onClick={() => updateStatus(idea.id, 'APPROVED')}>
-                      ✓ Approve
+                      Approve
                     </button>
                   )}
                   {(idea.status === 'APPROVED' || idea.status === 'SAVED' || idea.status === 'IN_REVIEW') && (
@@ -269,69 +266,69 @@ export default function IdeasPage() {
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-              <div className="form-group">
-                <label className="form-label">Idea Title *</label>
-                <input id="idea-title-input" className="form-input" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required placeholder="What's the core insight or angle?" />
+              <div className="field">
+                <label className="label">Idea Title *</label>
+                <input id="idea-title-input" className="input" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required placeholder="What's the core insight or angle?" />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Description</label>
-                <textarea className="form-textarea" rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Expand on the idea - what story would you tell? What's the hook?" />
+              <div className="field">
+                <label className="label">Description</label>
+                <textarea className="textarea" rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Expand on the idea - what story would you tell? What's the hook?" />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                <div className="form-group">
-                  <label className="form-label">Content Purpose</label>
-                  <select className="form-input" value={form.purpose} onChange={e => setForm(f => ({ ...f, purpose: e.target.value }))}>
-                    <option value=""> - Select purpose - </option>
+                <div className="field">
+                  <label className="label">Content Purpose</label>
+                  <select className="select" value={form.purpose} onChange={e => setForm(f => ({ ...f, purpose: e.target.value }))}>
+                    <option value="">Select purpose</option>
                     {Object.entries(PURPOSE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Source</label>
-                  <select className="form-input" value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))}>
+                <div className="field">
+                  <label className="label">Source</label>
+                  <select className="select" value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))}>
                     {Object.entries(SOURCE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </select>
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                <div className="form-group">
-                  <label className="form-label">Content Pillar</label>
-                  <select className="form-input" value={form.pillarId} onChange={e => setForm(f => ({ ...f, pillarId: e.target.value }))}>
-                    <option value=""> - None - </option>
+                <div className="field">
+                  <label className="label">Content Pillar</label>
+                  <select className="select" value={form.pillarId} onChange={e => setForm(f => ({ ...f, pillarId: e.target.value }))}>
+                    <option value="">None</option>
                     {pillars.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Related Project</label>
-                  <select className="form-input" value={form.projectId} onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}>
-                    <option value=""> - None - </option>
+                <div className="field">
+                  <label className="label">Related Project</label>
+                  <select className="select" value={form.projectId} onChange={e => setForm(f => ({ ...f, projectId: e.target.value }))}>
+                    <option value="">None</option>
                     {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Target Audience</label>
-                <input className="form-input" value={form.targetAudience} onChange={e => setForm(f => ({ ...f, targetAudience: e.target.value }))} placeholder="e.g. Senior engineers navigating tech lead transitions" />
+              <div className="field">
+                <label className="label">Target Audience</label>
+                <input className="input" value={form.targetAudience} onChange={e => setForm(f => ({ ...f, targetAudience: e.target.value }))} placeholder="e.g. Senior engineers navigating tech lead transitions" />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Evidence / Supporting Facts</label>
-                <textarea className="form-textarea" rows={2} value={form.evidence} onChange={e => setForm(f => ({ ...f, evidence: e.target.value }))} placeholder="What real experience, data, or observation backs this idea?" />
+              <div className="field">
+                <label className="label">Evidence / Supporting Facts</label>
+                <textarea className="textarea" rows={2} value={form.evidence} onChange={e => setForm(f => ({ ...f, evidence: e.target.value }))} placeholder="What real experience, data, or observation backs this idea?" />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                <div className="form-group">
-                  <label className="form-label">Priority (1=low, 5=high)</label>
-                  <select className="form-input" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}>
-                    {[1,2,3,4,5].map(n => <option key={n} value={n}>{PRIORITIES[n]} {n}</option>)}
+                <div className="field">
+                  <label className="label">Priority</label>
+                  <select className="select" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}>
+                    {[1,2,3,4,5].map(n => <option key={n} value={n}>P{n} — {n === 1 ? 'Low' : n === 2 ? 'Below average' : n === 3 ? 'Medium' : n === 4 ? 'High' : 'Critical'}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Status</label>
-                  <select className="form-input" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                <div className="field">
+                  <label className="label">Status</label>
+                  <select className="select" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
                     {Object.entries(STATUS_CONFIG).slice(0, 4).map(([v, c]) => <option key={v} value={v}>{c.label}</option>)}
                   </select>
                 </div>

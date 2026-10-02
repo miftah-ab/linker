@@ -50,7 +50,7 @@ const STATUS_LABELS: Record<string, string> = {
 const OUTCOME_LABELS: Record<string, string> = {
   PLANNED: 'Planned',
   CLAIMED: 'Claimed',
-  VERIFIED: '✓ Verified',
+  VERIFIED: 'Verified',
   UNVERIFIED: 'Unverified',
 };
 
