@@ -39,7 +39,14 @@ export async function updateSession(request: NextRequest) {
     user = null;
   }
 
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  // If OAuth code lands on root or any other page, route it directly to the callback handler
+  if (searchParams.has('code') && !pathname.startsWith('/auth/callback')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/auth/callback';
+    return NextResponse.redirect(url);
+  }
 
   // Protect /app/* routes
   if (pathname.startsWith('/app') && !user) {

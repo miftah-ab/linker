@@ -5,19 +5,22 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const clientId = process.env.LINKEDIN_CLIENT_ID;
-  const redirectUri = process.env.LINKEDIN_REDIRECT_URI;
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  const proto = request.headers.get('x-forwarded-proto') || 'https';
+  const defaultOrigin = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_APP_URL || 'https://linker-studio.vercel.app');
+  const redirectUri = process.env.LINKEDIN_REDIRECT_URI || `${defaultOrigin}/api/integrations/linkedin/callback`;
 
-  if (!clientId || !redirectUri) {
+  if (!clientId) {
     return NextResponse.json(
       {
-        error: 'LinkedIn OAuth is not configured. Set LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, and LINKEDIN_REDIRECT_URI in your environment.',
+        error: 'LinkedIn OAuth is not configured. Set LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET in your environment.',
       },
       { status: 503 },
     );

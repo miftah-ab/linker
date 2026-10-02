@@ -14,7 +14,10 @@ export async function GET(request: Request) {
   const error = searchParams.get('error');
   const errorDescription = searchParams.get('error_description');
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  // Resolve base app URL dynamically from headers or fallback to production URL
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  const proto = request.headers.get('x-forwarded-proto') || 'https';
+  const appUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_APP_URL || 'https://linker-studio.vercel.app');
 
   // LinkedIn denied access or cancelled
   if (error) {
